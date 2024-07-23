@@ -820,17 +820,15 @@ class Alignment:
             Alignment with modified columns and sequences
             (this alignment maintains annotation)
         """
-        mod_matrix = np.copy(self.matrix)
-
-        if columns is None and sequences is None:
+        col_apply = columns is not None and self.matrix[:, columns].size > 0
+        seq_apply = sequences is not None and self.matrix[sequences, :].size > 0
+        if not col_apply and not seq_apply:
             return self
-        else:
-            if columns is not None:
-                mod_matrix[:, columns] = func(mod_matrix[:, columns])
-
-            if sequences is not None:
-                mod_matrix[sequences, :] = func(mod_matrix[sequences, :])
-
+        mod_matrix = np.copy(self.matrix)
+        if col_apply:
+            mod_matrix[:, columns] = func(mod_matrix[:, columns])
+        if seq_apply:
+            mod_matrix[sequences, :] = func(mod_matrix[sequences, :])
         return Alignment(
             mod_matrix, deepcopy(self.ids), deepcopy(self.annotation),
             alphabet=self.alphabet
